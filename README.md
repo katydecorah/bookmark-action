@@ -38,6 +38,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
       - name: Bookmark action
         uses: katydecorah/bookmark-action@v6.1.0
         with:
