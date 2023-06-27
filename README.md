@@ -44,7 +44,7 @@ jobs:
           filename: _data/recipes.json
       - name: Download the thumbnail image if it exists
         if: env.BookmarkImage != ''
-        run: curl "${{ env.BookmarkImage }}" -o "img/${{ env.BookmarkImageOutput }}"
+        run: curl -o "${{ env.BookmarkImage }}" "img/${{ env.BookmarkImageOutput }}"
       - name: Commit files
         run: |
           git pull
