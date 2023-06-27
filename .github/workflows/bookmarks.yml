@@ -29,8 +29,9 @@ jobs:
         uses: ./
         with:
           filename: _data/recipes.json
-      - name: Download the thumbnail image
-        run: curl "${{ env.BookmarkImage }}" -o "img/${{ env.BookmarkImageOutput }}"
+      - name: Download the thumbnail image if it exists
+        if: env.BookmarkImage != ''
+        run: curl -o "${{ env.BookmarkImage }}" "img/${{ env.BookmarkImageOutput }}"
       - name: Commit files
         run: |
           git pull

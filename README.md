@@ -42,7 +42,8 @@ jobs:
         uses: katydecorah/bookmark-action@v6.1.0
         with:
           filename: _data/recipes.json
-      - name: Download the thumbnail image
+      - name: Download the thumbnail image if it exists
+        if: env.BookmarkImage != ''
         run: curl "${{ env.BookmarkImage }}" -o "img/${{ env.BookmarkImageOutput }}"
       - name: Commit files
         run: |

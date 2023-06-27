@@ -18,7 +18,8 @@ export async function getMetadata({
     const { result } = await ogs({ url, downloadLimit: false });
     exportVariable("BookmarkTitle", result.ogTitle);
     exportVariable("DateBookmarked", date);
-    const image = getInput("export-image") === "true" ? setImage(result) : "";
+    const image =
+      getInput("export-image") === "true" ? await setImage(result) : "";
     return {
       title: result.ogTitle || "",
       site: result.ogSiteName || "",

@@ -43321,27 +43321,47 @@ function addBookmark(filename, bookmark) {
 // EXTERNAL MODULE: ./node_modules/open-graph-scraper/index.js
 var open_graph_scraper = __nccwpck_require__(2990);
 var open_graph_scraper_default = /*#__PURE__*/__nccwpck_require__.n(open_graph_scraper);
+// EXTERNAL MODULE: ./node_modules/node-fetch/lib/index.js
+var lib = __nccwpck_require__(467);
+var lib_default = /*#__PURE__*/__nccwpck_require__.n(lib);
 ;// CONCATENATED MODULE: ./src/set-image.ts
+var set_image_awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+
 
 
 function handleMimeType(type) {
-    const matches = type.match("(jpe?g)|(png)");
+    const matches = type.match("(jpe?g)|(png|svg|gif|webp)");
     // TO DO: Refactor
     return matches ? matches[0].replace("jpeg", "jpg") : "jpg";
 }
 function setImage(result) {
-    if (!result.ogImage || !result.ogTitle)
-        return;
-    const image = Array.isArray(result.ogImage)
-        ? result.ogImage[0]
-        : result.ogImage;
-    if (!image.url)
-        return;
-    const imageType = image.type ? `.${handleMimeType(image.type)}` : ".jpg";
-    const imageName = `bookmark-${slugify(result.ogTitle)}${imageType}`;
-    (0,core.exportVariable)("BookmarkImageOutput", imageName);
-    (0,core.exportVariable)("BookmarkImage", image.url);
-    return imageName;
+    return set_image_awaiter(this, void 0, void 0, function* () {
+        if (!result.ogImage || !result.ogTitle)
+            return;
+        const image = Array.isArray(result.ogImage)
+            ? result.ogImage[0]
+            : result.ogImage;
+        if (!image.url)
+            return;
+        const imageType = image.type ? `.${handleMimeType(image.type)}` : ".jpg";
+        const imageName = `bookmark-${slugify(result.ogTitle)}${imageType}`;
+        const response = yield lib_default()(image.url);
+        if (!response.ok) {
+            (0,core.info)(`Image ${image.url} is broken. Skipping...`);
+            return undefined;
+        }
+        (0,core.exportVariable)("BookmarkImageOutput", imageName);
+        (0,core.exportVariable)("BookmarkImage", image.url);
+        return imageName;
+    });
 }
 
 ;// CONCATENATED MODULE: ./src/get-metadata.ts
@@ -43363,7 +43383,7 @@ function getMetadata({ url, notes, date, tags, }) {
             const { result } = yield open_graph_scraper_default()({ url, downloadLimit: false });
             (0,core.exportVariable)("BookmarkTitle", result.ogTitle);
             (0,core.exportVariable)("DateBookmarked", date);
-            const image = (0,core.getInput)("export-image") === "true" ? setImage(result) : "";
+            const image = (0,core.getInput)("export-image") === "true" ? yield setImage(result) : "";
             return Object.assign(Object.assign({ title: result.ogTitle || "", site: result.ogSiteName || "", author: result.author || "", date, description: result.ogDescription || "", url: result.ogUrl || result.requestUrl, image, type: result.ogType || "" }, (notes && { notes })), (tags && { tags: toArray(tags) }));
         }
         catch (error) {
